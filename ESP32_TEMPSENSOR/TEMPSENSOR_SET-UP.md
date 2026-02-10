@@ -1,6 +1,6 @@
 This activity is for IOT Project 2.1. Documentation on how to set this up:
 
-============================================================
+===========================
 
 HARDWARE:
 
@@ -17,7 +17,7 @@ DATA         | P4 (This can be changed to any pin (P), as long as you adjust
                the CPP code in Arduino.)
 GND          | GND
 
-============================================================
+===========================
 
 INSTALLATIONS/TOOL PREP:
 
@@ -27,13 +27,13 @@ INSTALLATIONS/TOOL PREP:
       `allow_anonymous true`
       This is to allow anonymous wifi connections since the server (the PC) and the dev board must have the same wifi connection. **Also note** that you will need the SSID, password, and ipv4 address of your connection. It is very case-sensitive, so you might get stuck in trying to connect later on if there are incorrect values in the ESP32 code.
       There may also be Firewall fixes here to allow freedom in connection.
-2. **Node-RED:** Refer to the DOCX file in the directory.
+1. **Node-RED:** Refer to the DOCX file in the directory.
    1. Hamburger Icon (Menu) > Manage Palette > Install
       1. @flowfuse/node-red-dashboard
       2. node-red-contrib-google-sheets
       3. node-red-iot-mqtt-api
    2. Menu > Import > Copy and paste 'ESP32_NODERED_TEMPSENSOR.json'. Then a flow will be seen in the space.
-3. **Arduino** (https://docs.arduino.cc/software/ide/)
+2. **Arduino** (https://docs.arduino.cc/software/ide/)
    1. Tools > Board Manager > ESP32 by Espressif Systems > DOIT ESP32 DEVKIT V1
    2. Port > Set to COMX (COM5 usually. This will appear if you have the appropriate USB-C cable. Will be wrong if your port is still set to Serial Ports.)
    3. Left Side Bar > Library Manager
@@ -41,13 +41,13 @@ INSTALLATIONS/TOOL PREP:
       2.  DHT sensor library by Adafruit
       3.  PubSubClient by Nick O'Leary (for the MQTT data transfers) 
   1.  Transfer the code to your Arduino sketch file (.ino) and edit the necessary wi-fi settings.
-4. **Google Sheets**
+3. **Google Sheets**
    1. Create file named 'DHT11 Data Logger'. Add plain columns titled: Timestamp | Temperature | Humidity
    2. Open Apps Script Extension > Copy the 'ESP32_TEMPSENSOR_APPSCRIPT.gs' content into the Code.gs
       1. Click Deploy > New Deployment > Select Type: Web App > Execute as 'Me' > Who has access: Anyone (very important!)
       2. Get generated Web App URL and paste it into **NODE-RED** by double clicking [Post -> Google Sheets] and changing the sample script URL to your set Apps Script URL.
 
-============================================================
+===========================
 
 STEPS:
 
