@@ -1,0 +1,575 @@
+[
+
+ {
+
+   "id": "tab1",
+
+   "type": "ui_tab",
+
+   "z": "",
+
+   "name": "DHT11 Monitor",
+
+   "icon": "dashboard",
+
+   "disabled": false,
+
+   "hidden": false
+
+ },
+
+ {
+
+   "id": "grp_metrics",
+
+   "type": "ui_group",
+
+   "z": "",
+
+   "name": "Metrics",
+
+   "tab": "tab1",
+
+   "order": 1,
+
+   "disp": true,
+
+   "width": 6,
+
+   "collapse": false
+
+ },
+
+ {
+
+   "id": "grp_charts",
+
+   "type": "ui_group",
+
+   "z": "",
+
+   "name": "Charts",
+
+   "tab": "tab1",
+
+   "order": 2,
+
+   "disp": true,
+
+   "width": 12,
+
+   "collapse": false
+
+ },
+
+ {
+
+   "id": "mqttcfg",
+
+   "type": "mqtt-broker",
+
+   "name": "Local MQTT",
+
+   "broker": "127.0.0.1",
+
+   "port": "1883",
+
+   "clientid": "",
+
+   "usetls": false,
+
+   "protocolVersion": "4",
+
+   "keepalive": "60",
+
+   "cleansession": true,
+
+   "birthTopic": "",
+
+   "birthQos": "0",
+
+   "birthRetain": "false",
+
+   "birthPayload": "",
+
+   "closeTopic": "",
+
+   "closeQos": "0",
+
+   "closeRetain": "false",
+
+   "closePayload": "",
+
+   "willTopic": "",
+
+   "willQos": "0",
+
+   "willRetain": "false",
+
+   "willPayload": "",
+
+   "credentials": {}
+
+ },
+
+ {
+
+   "id": "mqtt_in_dht",
+
+   "type": "mqtt in",
+
+   "z": "flow1",
+
+   "name": "ESP32 DHT11",
+
+   "topic": "esp32/dht11",
+
+   "qos": "0",
+
+   "datatype": "auto",
+
+   "broker": "mqttcfg",
+
+   "nl": false,
+
+   "rap": true,
+
+   "rh": 0,
+
+   "x": 140,
+
+   "y": 100,
+
+   "wires": [["json_parse"]]
+
+ },
+
+ {
+
+   "id": "json_parse",
+
+   "type": "json",
+
+   "z": "flow1",
+
+   "name": "Parse JSON",
+
+   "property": "payload",
+
+   "action": "obj",
+
+   "pretty": false,
+
+   "x": 330,
+
+   "y": 100,
+
+   "wires": [["fn_enrich"]]
+
+ },
+
+ {
+
+   "id": "fn_enrich",
+
+   "type": "function",
+
+   "z": "flow1",
+
+   "name": "Enrich + route",
+
+   "func": "// expects msg.payload = {temperature, humidity, timestamp?}\nconst t = Number(msg.payload.temperature);\nconst h = Number(msg.payload.humidity);\nconst ts = msg.payload.timestamp || new Date().toISOString();\n\nconst row = { timestamp: ts, temperature: t, humidity: h };\n\n// out1 = temperature stream, out2 = humidity stream, out3 = row for Sheets\nreturn [\n [{ topic: \"Temperature (°C)\", payload: t, ts, row }],\n [{ topic: \"Humidity (%)\", payload: h, ts, row }],\n [{ payload: row }]\n];",
+
+   "outputs": 3,
+
+   "noerr": 0,
+
+   "initialize": "",
+
+   "finalize": "",
+
+   "libs": [],
+
+   "x": 520,
+
+   "y": 100,
+
+   "wires": [["g_temp","c_temp","txt_last"],["g_hum","c_hum","txt_last"],["chg_hdrs","dbg_row"]]
+
+ },
+
+ {
+
+   "id": "g_temp",
+
+   "type": "ui_gauge",
+
+   "z": "flow1",
+
+   "name": "Temperature",
+
+   "group": "grp_metrics",
+
+   "order": 1,
+
+   "width": 6,
+
+   "height": 4,
+
+   "gtype": "gage",
+
+   "title": "Temperature (°C)",
+
+   "label": "°C",
+
+   "format": "{{value | number:2}}",
+
+   "min": 0,
+
+   "max": 50,
+
+   "colors": ["#00bcd4","#ffeb3b","#f44336"],
+
+   "seg1": "",
+
+   "seg2": "",
+
+   "className": ""
+
+ },
+
+ {
+
+   "id": "g_hum",
+
+   "type": "ui_gauge",
+
+   "z": "flow1",
+
+   "name": "Humidity",
+
+   "group": "grp_metrics",
+
+   "order": 2,
+
+   "width": 6,
+
+   "height": 4,
+
+   "gtype": "gage",
+
+   "title": "Humidity (%)",
+
+   "label": "%",
+
+   "format": "{{value | number:2}}",
+
+   "min": 0,
+
+   "max": 100,
+
+   "colors": ["#2196f3","#8bc34a","#f44336"],
+
+   "seg1": "",
+
+   "seg2": "",
+
+   "className": ""
+
+ },
+
+ {
+
+   "id": "c_temp",
+
+   "type": "ui_chart",
+
+   "z": "flow1",
+
+   "name": "Temperature Chart",
+
+   "group": "grp_charts",
+
+   "order": 1,
+
+   "width": 12,
+
+   "height": 6,
+
+   "label": "Temperature (°C)",
+
+   "chartType": "line",
+
+   "legend": "false",
+
+   "xformat": "HH:mm:ss",
+
+   "interpolate": "linear",
+
+   "nodata": "No data yet",
+
+   "dot": false,
+
+   "ymin": "0",
+
+   "ymax": "50",
+
+   "removeOlder": "24",
+
+   "removeOlderPoints": "",
+
+   "removeOlderUnit": "3600",
+
+   "cutout": 0,
+
+   "useOneColor": false,
+
+   "useUTC": false,
+
+   "colors": ["#ff5722","#1f77b4","#2ca02c"],
+
+   "outputs": 1,
+
+   "useDifferentColor": false,
+
+   "className": ""
+
+ },
+
+ {
+
+   "id": "c_hum",
+
+   "type": "ui_chart",
+
+   "z": "flow1",
+
+   "name": "Humidity Chart",
+
+   "group": "grp_charts",
+
+   "order": 2,
+
+   "width": 12,
+
+   "height": 6,
+
+   "label": "Humidity (%)",
+
+   "chartType": "line",
+
+   "legend": "false",
+
+   "xformat": "HH:mm:ss",
+
+   "interpolate": "linear",
+
+   "nodata": "No data yet",
+
+   "dot": false,
+
+   "ymin": "0",
+
+   "ymax": "100",
+
+   "removeOlder": "24",
+
+   "removeOlderPoints": "",
+
+   "removeOlderUnit": "3600",
+
+   "cutout": 0,
+
+   "useOneColor": false,
+
+   "useUTC": false,
+
+   "colors": ["#03a9f4","#1f77b4","#2ca02c"],
+
+   "outputs": 1,
+
+   "useDifferentColor": false,
+
+   "className": ""
+
+ },
+
+ {
+
+   "id": "txt_last",
+
+   "type": "ui_text",
+
+   "z": "flow1",
+
+   "group": "grp_metrics",
+
+   "order": 3,
+
+   "width": 6,
+
+   "height": 1,
+
+   "name": "Last Updated",
+
+   "label": "Last updated",
+
+   "format": "{{msg.ts}}",
+
+   "layout": "row-spread",
+
+   "className": ""
+
+ },
+
+ {
+
+   "id": "chg_hdrs",
+
+   "type": "change",
+
+   "z": "flow1",
+
+   "name": "Set headers",
+
+   "rules": [
+
+     {
+
+       "t": "set",
+
+       "p": "headers",
+
+       "pt": "msg",
+
+       "to": "{\"Content-Type\":\"application/json\"}",
+
+       "tot": "json"
+
+     }
+
+   ],
+
+   "action": "",
+
+   "property": "",
+
+   "from": "",
+
+   "to": "",
+
+   "reg": false,
+
+   "x": 780,
+
+   "y": 160,
+
+   "wires": [["http_sheet"]]
+
+ },
+
+ {
+
+   "id": "http_sheet",
+
+   "type": "http request",
+
+   "z": "flow1",
+
+   "name": "POST → Google Sheets",
+
+   "method": "POST",
+
+   "ret": "txt",
+
+   "paytoqs": "ignore",
+
+   "url": "https://script.google.com/macros/s/YOUR_SCRIPT_DEPLOYMENT_ID/exec",
+
+   "tls": "",
+
+   "persist": false,
+
+   "proxy": "",
+
+   "authType": "",
+
+   "senderr": false,
+
+   "x": 990,
+
+   "y": 160,
+
+   "wires": [["dbg_resp"]]
+
+ },
+
+ {
+
+   "id": "dbg_row",
+
+   "type": "debug",
+
+   "z": "flow1",
+
+   "name": "Row → Sheets",
+
+   "active": true,
+
+   "tosidebar": true,
+
+   "console": false,
+
+   "tostatus": false,
+
+   "complete": "payload",
+
+   "targetType": "msg",
+
+   "statusVal": "",
+
+   "statusType": "auto",
+
+   "x": 1000,
+
+   "y": 100,
+
+   "wires": []
+
+ },
+
+ {
+
+   "id": "dbg_resp",
+
+   "type": "debug",
+
+   "z": "flow1",
+
+   "name": "Sheets response",
+
+   "active": true,
+
+   "tosidebar": true,
+
+   "console": false,
+
+   "tostatus": false,
+
+   "complete": "payload",
+
+   "targetType": "msg",
+
+   "statusVal": "",
+
+   "statusType": "auto",
+
+   "x": 1210,
+
+   "y": 160,
+
+   "wires": []
+
+ }
+
+]
