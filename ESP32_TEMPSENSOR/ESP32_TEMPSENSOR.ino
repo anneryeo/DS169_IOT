@@ -5,9 +5,9 @@
 #define DHTPIN 4
 #define DHTTYPE DHT11
 
-const char* ssid = "RYEO"; //change x (ssid) to name of wifi network
-const char* password = "vagabond"; // change x (password) to password of wifi network
-const char* mqtt_server = "172.20.10.3"; //change x (mqtt_server) to ipv4 address of wifi network
+const char* ssid = "ABC"; //change x (ssid) to name of wifi network
+const char* password = "123"; // change x (password) to password of wifi network
+const char* mqtt_server = "123"; //change x (mqtt_server) to ipv4 address of wifi network
 
 WiFiClient espClient;
 PubSubClient client(espClient);
