@@ -1,7 +1,9 @@
 This activity is for IOT Project 2.1. Documentation on how to set this up:
 
 ============================================================
+
 HARDWARE:
+
 1. ESP32 DEV BOARD (WIFI-BT SoC, ISM2.4G 802.11/b/g/n)
 2. DHT11 or HDT11 Temp/Humidity Sensor
 3. Jumper Wires (Female-Female)
@@ -16,7 +18,9 @@ DATA         | P4 (This can be changed to any pin (P), as long as you adjust
 GND          | GND
 
 ============================================================
+
 INSTALLATIONS/TOOL PREP:
+
 1.**Mosquitto (MQTT):** Refer to the DOCX file in the directory. (To read DOCX files in VS Code, can download the extension 'Docx/ODT Viewer' by Shahil Kumar.)
    1. Edit **mosquitto.conf** and add these two lines at the end of the whole config: 
       `listener 1883 0.0.0.0`
@@ -44,7 +48,9 @@ INSTALLATIONS/TOOL PREP:
       2. Get generated Web App URL and paste it into **NODE-RED** by double clicking [Post -> Google Sheets] and changing the sample script URL to your set Apps Script URL.
 
 ============================================================
+
 STEPS:
+
 1. Prepare all the necessary installations and set-ups.
 2. Wire the hardware and connect it to the PC. Check if LEDs are lighting up.
 3. Make sure all tools are ready.
