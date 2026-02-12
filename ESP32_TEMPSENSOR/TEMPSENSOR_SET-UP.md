@@ -62,10 +62,16 @@ STEPS:
    3. If all is properly connected, you'll see at the bottom bar that your board is connected on your selected port.
    4. Click the *Left Top Bar Arrow (Upload)* button to transfer your .ino code to the ESP32 dev board.
    5. Once uploading, your terminal will show 'Connecting...'. Click the 'boot' button on the ESP32 board, usually labeled as T00? Idfk. It's definitely NOT 'En'. It will fail if you click this while connecting. When 00x000... shows up, you can stop holding boot.
+      1. **Exit 1 Error:** New update. If you get this error, you might be encountering any of the problems below:
+         1. You have multiple definitions that have the same variables. AKA, you might have more than one ESP32 file codes. (Like CPP with .ino, make sure your main file directory doesn't have duplicate files.)
+      2. IF THE ERROR HAPPENS *BEFORE* CONNECTING... then it's likely a library issue.
+         1. Maybe you installed `DHT_kxn` instead of the official AdaFruit DHT Sensor Library. Or you're missing other dependencies like the Adafruit Unified Sensor library.
+      3. Can also be a port and driver issue.
+         1. If you can't see the COM Port at the bottom bar, maybe your connector's USB-C needs the CP210x driver. (https://www.silabs.com/software-and-tools/usb-to-uart-bridge-vcp-drivers?tab=downloads)
    6. You may be an idiot like me who thinks I should still wait after the message 'Hard Resetting via RTS pin'. No. There is nothing to wait for. It's done.
    7. Go to your Serial Monitor (Ctrl + Shift + M) > Set the baud from 9600 to 115200. If it's in 9600, you'll see no results or random ass words.
    8. Click 'EN' button on your ESP32 dev board. Now you should be able to see your ESP32 connecting to wi-fi, and then promptly updating results on your GSheets every 10 seconds. As reflected on your Serial Monitor.
-   9. **Note:** If you have a .cpp file in the same directory as your .ino, Arduino would read all of it so you might encounter an error. Just remove the other unnecessary file and leave your main file (.ino).
+   9.  **Note:** If you have a .cpp file in the same directory as your .ino, Arduino would read all of it so you might encounter an error. Just remove the other unnecessary file and leave your main file (.ino).
 5.  If you want a UI for this...
     1.  Go to Node-RED.
     2.  From the left side-bar, search for UI nodes. Preferably 'Gauge' and 'Chart'
