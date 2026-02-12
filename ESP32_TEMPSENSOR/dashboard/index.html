@@ -23,12 +23,13 @@
     <style>
         body {
             font-family: 'Instrument Sans', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #5160b6 0%, #4d2991 100%);
             min-height: 100vh;
         }
         
         .card {
             background: rgba(255, 255, 255, 0.95);
+            -webkit-backdrop-filter: blur(10px);
             backdrop-filter: blur(10px);
             border-radius: 12px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -182,6 +183,8 @@
         </div>
     </div>
     
+    <!-- Load configuration first, then app -->
+    <script src="config.js"></script>
     <script src="app.js"></script>
 </body>
 </html>

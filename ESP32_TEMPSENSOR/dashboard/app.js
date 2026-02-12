@@ -10,22 +10,39 @@
 // ============================================================================
 // Configuration
 // ============================================================================
+// Configuration is loaded from config.js (which is gitignored for security)
+// This ensures API keys and sensitive data are never committed to git
 
-// Replace with your actual Google Sheets API Key
-const API_KEY = 'AIzaSyDU8AqJJ2j4LPFns5ufR-iBODGNQS4_qRA';
+// Debug: Check if CONFIG is available
+console.log('CONFIG object available:', typeof CONFIG !== 'undefined');
+if (typeof CONFIG === 'undefined') {
+    console.error('CRITICAL: CONFIG object not found! Make sure config.js is loaded before app.js');
+}
 
-// Replace with your Google Sheet ID (from the sheet URL)
-const SHEET_ID = '1CdHqtxbw4ve-dbGPenaMnsXgyPyFYczUe89exOu1G7Y';
-
-// Name of the sheet to query (visible tab at bottom)
-const SHEET_NAME = 'Sheet1';
-
-// Number of latest entries to display (for performance)
-const DISPLAY_LIMIT = 100;
-
-const DISCOVERY_DOCS = [
+// Use CONFIG object from config.js, with fallbacks for safety
+const API_KEY = CONFIG?.API_KEY || '';
+const SHEET_ID = CONFIG?.SHEET_ID || '';
+const SHEET_NAME = CONFIG?.SHEET_NAME || 'Sheet1';
+const DISPLAY_LIMIT = CONFIG?.DISPLAY_LIMIT || 100;
+const DISCOVERY_DOCS = CONFIG?.DISCOVERY_DOCS || [
     'https://sheets.googleapis.com/$discovery/rest?version=v4'
 ];
+
+// Debug logging
+console.log('Configuration loaded:', {
+    hasAPIKey: !!API_KEY,
+    hasSheetID: !!SHEET_ID,
+    sheetsName: SHEET_NAME,
+    displayLimit: DISPLAY_LIMIT
+});
+
+// Validate configuration
+if (!API_KEY || !SHEET_ID) {
+    console.error('ERROR: CONFIG object not loaded or credentials missing!');
+    console.error('API_KEY present:', !!API_KEY);
+    console.error('SHEET_ID present:', !!SHEET_ID);
+    console.error('Please ensure config.js is loaded and contains API_KEY and SHEET_ID');
+}
 
 // ============================================================================
 // Global Variables
@@ -48,17 +65,26 @@ let chartData = {
  */
 window.addEventListener('load', async () => {
     try {
+        console.log('Dashboard initialization started');
+        
         // Initialize Google API client
+        console.log('Initializing Google API client...');
         await initializeGoogleAPI();
+        console.log('Google API client initialized successfully');
         
         // Fetch and process data
+        console.log('Fetching data from Google Sheets...');
         await fetchAndDisplayData();
+        console.log('Data fetched successfully');
         
         // Set up auto-refresh every 5 minutes
         setInterval(fetchAndDisplayData, 5 * 60 * 1000);
+        console.log('Auto-refresh scheduled every 5 minutes');
     } catch (error) {
         console.error('Initialization error:', error);
-        showError('Failed to initialize dashboard. Please check your API key and Sheet ID.');
+        console.error('Error message:', error.message);
+        console.error('Error stack:', error.stack);
+        showError('Failed to initialize dashboard. Please check your API key and Sheet ID. See console for details.');
     }
 });
 
@@ -72,15 +98,38 @@ window.addEventListener('load', async () => {
  */
 async function initializeGoogleAPI() {
     return new Promise((resolve, reject) => {
+        // Check if gapi is available
+        if (!window.gapi) {
+            reject(new Error('Google API library (gapi) not loaded. Check that Google API script tag is included in HTML.'));
+            return;
+        }
+        
         gapi.load('client', async () => {
             try {
+                console.log('Initializing gapi.client with API key:', API_KEY?.substring(0, 10) + '...');
+                console.log('Discovery docs:', DISCOVERY_DOCS);
                 await gapi.client.init({
                     apiKey: API_KEY,
                     discoveryDocs: DISCOVERY_DOCS
                 });
+                console.log('gapi.client initialized successfully');
                 resolve();
             } catch (error) {
-                reject(new Error('Failed to initialize Google API: ' + error.message));
+                console.error('gapi.client.init failed:', error);
+                
+                // Provide detailed error guidance
+                let detailedMessage = 'Failed to initialize Google API: ' + error.message;
+                
+                if (error.message?.includes('403')) {
+                    detailedMessage = 'API Error 403 (Forbidden): Your API key may not have Google Sheets API enabled, or there may be restrictions. Check Google Cloud Console.';
+                } else if (error.message?.includes('400')) {
+                    detailedMessage = 'API Error 400 (Bad Request): Invalid API key format or configuration.';
+                } else if (!API_KEY) {
+                    detailedMessage = 'No API key found in CONFIG. Please ensure config.js has a valid API_KEY.';
+                }
+                
+                console.error('Detailed error:', detailedMessage);
+                reject(new Error(detailedMessage));
             }
         });
     });

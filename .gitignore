@@ -1,0 +1,25 @@
+# Environment & Configuration
+.env
+.env.local
+.env.*.local
+config.js
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build outputs
+.dist/
+node_modules/
+dist/
+
+# Logs
+*.log
+npm-debug.log*
