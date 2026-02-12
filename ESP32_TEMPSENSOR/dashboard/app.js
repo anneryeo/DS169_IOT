@@ -14,17 +14,19 @@
 // This ensures API keys and sensitive data are never committed to git
 
 // Debug: Check if CONFIG is available
-console.log('CONFIG object available:', typeof CONFIG !== 'undefined');
-if (typeof CONFIG === 'undefined') {
+const hasConfig = typeof CONFIG !== 'undefined' || typeof window.CONFIG !== 'undefined';
+console.log('CONFIG object available:', hasConfig);
+if (!hasConfig) {
     console.error('CRITICAL: CONFIG object not found! Make sure config.js is loaded before app.js');
 }
 
 // Use CONFIG object from config.js, with fallbacks for safety
-const API_KEY = CONFIG?.API_KEY || '';
-const SHEET_ID = CONFIG?.SHEET_ID || '';
-const SHEET_NAME = CONFIG?.SHEET_NAME || 'Sheet1';
-const DISPLAY_LIMIT = CONFIG?.DISPLAY_LIMIT || 100;
-const DISCOVERY_DOCS = CONFIG?.DISCOVERY_DOCS || [
+const config = typeof CONFIG !== 'undefined' ? CONFIG : (window.CONFIG || {});
+const API_KEY = config.API_KEY || '';
+const SHEET_ID = config.SHEET_ID || '';
+const SHEET_NAME = config.SHEET_NAME || 'Sheet1';
+const DISPLAY_LIMIT = config.DISPLAY_LIMIT || 100;
+const DISCOVERY_DOCS = config.DISCOVERY_DOCS || [
     'https://sheets.googleapis.com/$discovery/rest?version=v4'
 ];
 
