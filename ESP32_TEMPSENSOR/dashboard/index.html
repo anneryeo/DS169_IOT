@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DS169 IoT Dashboard</title>
+    
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Instrument Sans -->
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    
+    <!-- Google Charts -->
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    
+    <!-- Google API Client Library -->
+    <script src="https://apis.google.com/js/api.js"></script>
+    
+    <style>
+        body {
+            font-family: 'Instrument Sans', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .gauge-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 300px;
+        }
+        
+        .loading-spinner {
+            border: 4px solid #f3f4f6;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .error-banner {
+            background-color: #fee2e2;
+            border-left: 4px solid #dc2626;
+            color: #991b1b;
+            padding: 12px 16px;
+            border-radius: 6px;
+            margin-bottom: 16px;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #667eea;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: #6b7280;
+            margin-top: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="min-h-screen py-8 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto">
+            <!-- Header -->
+            <div class="mb-8">
+                <h1 class="text-4xl font-bold text-white mb-2">DS169 IoT Dashboard</h1>
+                <p class="text-white text-opacity-80">Real-time Temperature & Humidity Monitoring</p>
+            </div>
+            
+            <!-- Error Banner (hidden by default) -->
+            <div id="errorBanner" class="error-banner hidden mb-4">
+                <span id="errorMessage"></span>
+            </div>
+            
+            <!-- Loading State -->
+            <div id="loadingState" class="flex justify-center items-center py-12">
+                <div class="loading-spinner"></div>
+                <span class="ml-4 text-white text-lg">Loading dashboard...</span>
+            </div>
+            
+            <!-- Dashboard Content (hidden initially) -->
+            <div id="dashboardContent" class="hidden">
+                <!-- Gauges Section -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <!-- Temperature Gauge -->
+                    <div class="card p-6">
+                        <h2 class="text-lg font-semibold text-gray-800 mb-4">Current Temperature</h2>
+                        <div class="gauge-container">
+                            <div id="temperatureGauge"></div>
+                        </div>
+                        <div class="text-center mt-4">
+                            <div class="stat-value" id="tempValue">--</div>
+                            <div class="stat-label">°C (Average)</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Humidity Gauge -->
+                    <div class="card p-6">
+                        <h2 class="text-lg font-semibold text-gray-800 mb-4">Current Humidity</h2>
+                        <div class="gauge-container">
+                            <div id="humidityGauge"></div>
+                        </div>
+                        <div class="text-center mt-4">
+                            <div class="stat-value" id="humidValue">--</div>
+                            <div class="stat-label">% (Average)</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Charts Section -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                    <!-- Temperature Trend -->
+                    <div class="card p-6">
+                        <h2 class="text-lg font-semibold text-gray-800 mb-4">Temperature Trend</h2>
+                        <div class="chart-container">
+                            <canvas id="temperatureChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <!-- Humidity Trend -->
+                    <div class="card p-6">
+                        <h2 class="text-lg font-semibold text-gray-800 mb-4">Humidity Trend</h2>
+                        <div class="chart-container">
+                            <canvas id="humidityChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Data Statistics -->
+                <div class="card p-6">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-4">Data Statistics</h2>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div>
+                            <div class="stat-value" id="dataPoints">0</div>
+                            <div class="stat-label">Data Points</div>
+                        </div>
+                        <div>
+                            <div class="stat-value" id="tempMin">--</div>
+                            <div class="stat-label">Min Temp (°C)</div>
+                        </div>
+                        <div>
+                            <div class="stat-value" id="tempMax">--</div>
+                            <div class="stat-label">Max Temp (°C)</div>
+                        </div>
+                        <div>
+                            <div class="stat-value" id="humidMin">--</div>
+                            <div class="stat-label">Min Humidity (%)</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Last Updated -->
+                <div class="text-center mt-8 text-white text-opacity-70 text-sm">
+                    <p>Last updated: <span id="lastUpdated">--</span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="app.js"></script>
+</body>
+</html>
